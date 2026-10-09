@@ -1,18 +1,25 @@
-FROM rust:alpine as backend
+FROM rust:alpine AS backend
 WORKDIR /home/rust/src
 RUN apk --no-cache add musl-dev openssl-dev
-COPY . .
-RUN cargo test --release
-RUN cargo build --release
+COPY Cargo.toml Cargo.lock ./
+COPY letsmarkdown-server letsmarkdown-server
+COPY letsmarkdown-wasm letsmarkdown-wasm
+RUN cargo test --release --locked -p letsmarkdown-server
+RUN cargo build --release --locked -p letsmarkdown-server
 
-FROM --platform=$BUILDPLATFORM rust:alpine AS wasm
+# The prebuilt ARM wasm-bindgen CLI requires glibc.
+FROM --platform=$BUILDPLATFORM rust:slim AS wasm
 WORKDIR /home/rust/src
-RUN apk --no-cache add curl musl-dev
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends curl ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
 RUN curl https://rustwasm.github.io/wasm-pack/installer/init.sh -sSf | sh
-COPY . .
-RUN wasm-pack build --target web letsmarkdown-wasm
+COPY Cargo.toml Cargo.lock ./
+COPY letsmarkdown-server letsmarkdown-server
+COPY letsmarkdown-wasm letsmarkdown-wasm
+RUN wasm-pack build --target web letsmarkdown-wasm --locked
 
-FROM node:lts-alpine as frontend
+FROM --platform=$BUILDPLATFORM node:lts-alpine AS frontend
 WORKDIR /usr/src/app
 COPY package.json package-lock.json ./
 COPY --from=wasm /home/rust/src/letsmarkdown-wasm/pkg letsmarkdown-wasm/pkg
