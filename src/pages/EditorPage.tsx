@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
+import { useMediaQuery } from "react-responsive";
 import {
   Box,
   Button,
@@ -71,8 +72,22 @@ function EditorPage() {
     "sidebarCollapsed",
     () => false
   );
+  const isMobile = useMediaQuery({ maxWidth: 767 });
+  const [mobileSidebarCollapsed, setMobileSidebarCollapsed] = useState(true);
+  const isSidebarCollapsed = isMobile
+    ? mobileSidebarCollapsed
+    : sidebarCollapsed;
+  const setSidebarVisibility = isMobile
+    ? setMobileSidebarCollapsed
+    : setSidebarCollapsed;
   const rustpad = useRef<Rustpad>();
   const { id } = useParams<string>();
+
+  useEffect(() => {
+    if (isMobile) {
+      setMobileSidebarCollapsed(true);
+    }
+  }, [isMobile]);
 
   useEffect(() => {
     if (editor?.getModel()) {
@@ -149,6 +164,7 @@ function EditorPage() {
     <Flex
       direction="column"
       h="100vh"
+      sx={{ "@supports (height: 100dvh)": { height: "100dvh" } }}
       overflow="hidden"
       bgColor={darkMode ? "#1e1e1e" : "white"}
       color={darkMode ? "#cbcaca" : "inherit"}
@@ -164,8 +180,8 @@ function EditorPage() {
       >
         Let's Markdown!
       </Box>
-      <Flex flex="1 0" minH={0}>
-        {sidebarCollapsed ? (
+      <Flex flex="1" minH={0} position="relative">
+        {isSidebarCollapsed ? (
           <Flex
             w="2.5rem"
             flexShrink={0}
@@ -180,13 +196,18 @@ function EditorPage() {
               size="sm"
               color={darkMode ? "#cccccc" : "#383838"}
               _hover={{ bg: darkMode ? "#3c3c3c" : "gray.200" }}
-              onClick={() => setSidebarCollapsed(false)}
+              onClick={() => setSidebarVisibility(false)}
             />
           </Flex>
         ) : (
           <Container
-            position="relative"
+            position={isMobile ? "absolute" : "relative"}
+            top={isMobile ? 0 : undefined}
+            bottom={isMobile ? 0 : undefined}
+            left={isMobile ? 0 : undefined}
+            zIndex={isMobile ? 2 : undefined}
             w="18rem"
+            flexShrink={0}
             bgColor={darkMode ? "#252526" : "#f3f3f3"}
             overflowY="auto"
             maxW="full"
@@ -203,7 +224,7 @@ function EditorPage() {
               size="sm"
               color={darkMode ? "#cccccc" : "#383838"}
               _hover={{ bg: darkMode ? "#3c3c3c" : "gray.200" }}
-              onClick={() => setSidebarCollapsed(true)}
+              onClick={() => setSidebarVisibility(true)}
             />
             <ConnectionStatus darkMode={darkMode} connection={connection} />
 
@@ -310,7 +331,7 @@ function EditorPage() {
 
           <Box flex={1} minH={0} h="100%" overflow="hidden">
             <Split className="split" minSize={50}>
-              <Box>
+              <Box className="editor-pane" minW={0} minH={0} overflow="hidden">
                 <Editor
                   theme={darkMode ? "vs-dark" : "vs"}
                   language="markdown"
@@ -327,7 +348,7 @@ function EditorPage() {
                   }}
                 />
               </Box>
-              <Box>
+              <Box className="preview-pane" minW={0} minH={0} overflow="hidden">
                 <Score notes={abcString} darkMode={darkMode} />
               </Box>
             </Split>

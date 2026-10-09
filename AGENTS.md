@@ -28,8 +28,8 @@ root:
 - `npm run build` / `npm run serve`: build the frontend / preview its production
   bundle.
 - `cargo test --release`: run Rust tests, matching the Docker build.
-- `npm run format` / `cargo fmt`: format frontend/documentation files / Rust
-  code.
+- `pnpx prettier@2.4.1 --write .` / `cargo fmt`: format frontend/documentation
+  files / Rust code.
 
 ## Coding Style & Naming Conventions
 
@@ -46,14 +46,19 @@ No frontend test runner, existing Rust test cases, or coverage threshold is
 configured. Add Rust unit tests near the affected module using `#[test]` or
 `#[tokio::test]`, with descriptive snake_case names. Manually verify editor and
 preview changes, including synchronization between two browser sessions. Before
-submitting, run the build, Rust tests, `npx prettier@2.4.1 --check .`, and
+submitting, run the build, Rust tests, `pnpx prettier@2.4.1 --check .`, and
 `cargo fmt -- --check`.
 
 ## Commit & Pull Request Guidelines
 
-History uses short imperative descriptions and occasional prefixes such as
-`ci:`; no uniform commit convention is enforced. Write focused commits
-describing the behavior changed. Open an issue for proposed features or bugs, as
-requested in the README. Include a concise PR description, related issue links,
-validation results, and screenshots for visible UI changes. Ensure Docker build
-and formatting CI pass.
+Before every commit, format all changed frontend and documentation files with
+`pnpx prettier@2.4.1 --write <changed-files>`, then run
+`pnpx prettier@2.4.1 --check .`. Use `pnpx` to run Prettier.
+
+Write commit messages in Conventional Commits format:
+`<type>(<optional-scope>): <imperative summary>`, for example
+`feat(editor): add responsive mobile layout`. Write focused commits describing
+the behavior changed. Open an issue for proposed features or bugs, as requested
+in the README. Include a concise PR description, related issue links, validation
+results, and screenshots for visible UI changes. Ensure Docker build and
+formatting CI pass.

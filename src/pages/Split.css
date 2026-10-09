@@ -18,3 +18,27 @@
 .dark-mode .gutter {
   filter: invert(90%);
 }
+
+@media (max-width: 767px) {
+  .split {
+    flex-direction: column-reverse;
+  }
+
+  .split > .editor-pane,
+  .split > .preview-pane {
+    /* Override the widths set by Split.js for the desktop layout. */
+    width: 100% !important;
+  }
+
+  .split > .editor-pane {
+    flex: 2 1 0;
+  }
+
+  .split > .preview-pane {
+    flex: 3 1 0;
+  }
+
+  .split > .gutter {
+    display: none;
+  }
+}
