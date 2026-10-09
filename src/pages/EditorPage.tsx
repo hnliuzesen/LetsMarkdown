@@ -8,6 +8,7 @@ import {
   Heading,
   HStack,
   Icon,
+  IconButton,
   Input,
   InputGroup,
   InputRightElement,
@@ -18,6 +19,7 @@ import {
   useToast,
 } from "@chakra-ui/react";
 import {
+  VscChevronLeft,
   VscChevronRight,
   VscFolderOpened,
   VscGist,
@@ -65,6 +67,10 @@ function EditorPage() {
   const [hue, setHue] = useStorage("hue", generateHue);
   const [editor, setEditor] = useState<editor.IStandaloneCodeEditor>();
   const [darkMode, setDarkMode] = useStorage("darkMode", () => false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useStorage(
+    "sidebarCollapsed",
+    () => false
+  );
   const rustpad = useRef<Rustpad>();
   const { id } = useParams<string>();
 
@@ -159,99 +165,132 @@ function EditorPage() {
         Let's Markdown!
       </Box>
       <Flex flex="1 0" minH={0}>
-        <Container
-          w="18rem"
-          bgColor={darkMode ? "#252526" : "#f3f3f3"}
-          overflowY="auto"
-          maxW="full"
-          lineHeight={1.4}
-          py={4}
-        >
-          <ConnectionStatus darkMode={darkMode} connection={connection} />
-
-          <Flex justifyContent="space-between" mt={4} mb={1.5} w="full">
-            <Heading size="sm">Dark Mode</Heading>
-            <Switch isChecked={darkMode} onChange={handleDarkMode} />
-          </Flex>
-
-          <Heading mt={4} mb={1.5} size="sm">
-            Share Link
-          </Heading>
-          <InputGroup size="sm">
-            <Input
-              readOnly
-              pr="3.5rem"
-              variant="outline"
-              bgColor={darkMode ? "#3c3c3c" : "white"}
-              borderColor={darkMode ? "#3c3c3c" : "white"}
-              value={`${window.location.origin}/${id}`}
-            />
-            <InputRightElement width="3.5rem">
-              <Button
-                h="1.4rem"
-                size="xs"
-                onClick={handleCopy}
-                _hover={{ bg: darkMode ? "#575759" : "gray.200" }}
-                bgColor={darkMode ? "#575759" : "gray.200"}
-              >
-                Copy
-              </Button>
-            </InputRightElement>
-          </InputGroup>
-
-          <Heading mt={4} mb={1.5} size="sm">
-            Active Users
-          </Heading>
-          <Stack spacing={0} mb={1.5} fontSize="sm">
-            <User
-              info={{ name, hue }}
-              isMe
-              onChangeName={(name) => name.length > 0 && setName(name)}
-              onChangeColor={() => setHue(generateHue())}
-              darkMode={darkMode}
-            />
-            {Object.entries(users).map(([id, info]) => (
-              <User key={id} info={info} darkMode={darkMode} />
-            ))}
-          </Stack>
-
-          <Heading mt={4} mb={1.5} size="sm">
-            About
-          </Heading>
-          <Text fontSize="sm" mb={1.5}>
-            <strong>LetsMarkdown.com</strong> is an open source collaborative
-            markdown editor.
-          </Text>
-          <Text fontSize="sm" mb={1.5}>
-            Share the link above to your friends, and start writing markdown
-            together!
-          </Text>
-          <Text fontSize="sm" mb={1.5}>
-            Built with Rust and React.js. See the{" "}
-            <Link
-              color="blue.600"
-              fontWeight="semibold"
-              href="https://github.com/Cveinnt/LetsMarkdown.com"
-              isExternal
-            >
-              GitHub repository
-            </Link>{" "}
-            for details.
-          </Text>
-
-          <Button
-            size="sm"
-            colorScheme={darkMode ? "whiteAlpha" : "blackAlpha"}
-            borderColor={darkMode ? "purple.400" : "purple.600"}
-            color={darkMode ? "purple.400" : "purple.600"}
-            variant="outline"
-            leftIcon={<VscRepoPull />}
-            mt={1}
-            onClick={handleLoadSample}
+        {sidebarCollapsed ? (
+          <Flex
+            w="2.5rem"
+            flexShrink={0}
+            justify="center"
+            pt={2}
+            bgColor={darkMode ? "#252526" : "#f3f3f3"}
           >
-            Load an example
-          </Button>
-        </Container>
+            <IconButton
+              aria-label="展开侧边栏"
+              icon={<Icon as={VscChevronRight} fontSize="lg" />}
+              variant="ghost"
+              size="sm"
+              color={darkMode ? "#cccccc" : "#383838"}
+              _hover={{ bg: darkMode ? "#3c3c3c" : "gray.200" }}
+              onClick={() => setSidebarCollapsed(false)}
+            />
+          </Flex>
+        ) : (
+          <Container
+            position="relative"
+            w="18rem"
+            bgColor={darkMode ? "#252526" : "#f3f3f3"}
+            overflowY="auto"
+            maxW="full"
+            lineHeight={1.4}
+            py={4}
+          >
+            <IconButton
+              aria-label="折叠侧边栏"
+              position="absolute"
+              top={1}
+              right={1}
+              icon={<Icon as={VscChevronLeft} fontSize="lg" />}
+              variant="ghost"
+              size="sm"
+              color={darkMode ? "#cccccc" : "#383838"}
+              _hover={{ bg: darkMode ? "#3c3c3c" : "gray.200" }}
+              onClick={() => setSidebarCollapsed(true)}
+            />
+            <ConnectionStatus darkMode={darkMode} connection={connection} />
+
+            <Flex justifyContent="space-between" mt={4} mb={1.5} w="full">
+              <Heading size="sm">Dark Mode</Heading>
+              <Switch isChecked={darkMode} onChange={handleDarkMode} />
+            </Flex>
+
+            <Heading mt={4} mb={1.5} size="sm">
+              Share Link
+            </Heading>
+            <InputGroup size="sm">
+              <Input
+                readOnly
+                pr="3.5rem"
+                variant="outline"
+                bgColor={darkMode ? "#3c3c3c" : "white"}
+                borderColor={darkMode ? "#3c3c3c" : "white"}
+                value={`${window.location.origin}/${id}`}
+              />
+              <InputRightElement width="3.5rem">
+                <Button
+                  h="1.4rem"
+                  size="xs"
+                  onClick={handleCopy}
+                  _hover={{ bg: darkMode ? "#575759" : "gray.200" }}
+                  bgColor={darkMode ? "#575759" : "gray.200"}
+                >
+                  Copy
+                </Button>
+              </InputRightElement>
+            </InputGroup>
+
+            <Heading mt={4} mb={1.5} size="sm">
+              Active Users
+            </Heading>
+            <Stack spacing={0} mb={1.5} fontSize="sm">
+              <User
+                info={{ name, hue }}
+                isMe
+                onChangeName={(name) => name.length > 0 && setName(name)}
+                onChangeColor={() => setHue(generateHue())}
+                darkMode={darkMode}
+              />
+              {Object.entries(users).map(([id, info]) => (
+                <User key={id} info={info} darkMode={darkMode} />
+              ))}
+            </Stack>
+
+            <Heading mt={4} mb={1.5} size="sm">
+              About
+            </Heading>
+            <Text fontSize="sm" mb={1.5}>
+              <strong>LetsMarkdown.com</strong> is an open source collaborative
+              markdown editor.
+            </Text>
+            <Text fontSize="sm" mb={1.5}>
+              Share the link above to your friends, and start writing markdown
+              together!
+            </Text>
+            <Text fontSize="sm" mb={1.5}>
+              Built with Rust and React.js. See the{" "}
+              <Link
+                color="blue.600"
+                fontWeight="semibold"
+                href="https://github.com/Cveinnt/LetsMarkdown.com"
+                isExternal
+              >
+                GitHub repository
+              </Link>{" "}
+              for details.
+            </Text>
+
+            <Button
+              size="sm"
+              colorScheme={darkMode ? "whiteAlpha" : "blackAlpha"}
+              borderColor={darkMode ? "purple.400" : "purple.600"}
+              color={darkMode ? "purple.400" : "purple.600"}
+              variant="outline"
+              leftIcon={<VscRepoPull />}
+              mt={1}
+              onClick={handleLoadSample}
+            >
+              Load an example
+            </Button>
+          </Container>
+        )}
         <Flex flex={1} minW={0} h="100%" direction="column" overflow="hidden">
           <HStack
             h={6}
