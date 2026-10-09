@@ -12,6 +12,7 @@ import {
   PopoverFooter,
   PopoverHeader,
   PopoverTrigger,
+  Portal,
   Text,
   useDisclosure,
 } from "@chakra-ui/react";
@@ -63,48 +64,52 @@ function User({
           {isMe && <Text>(you)</Text>}
         </HStack>
       </PopoverTrigger>
-      <PopoverContent
-        bgColor={darkMode ? "#333333" : "white"}
-        borderColor={darkMode ? "#464647" : "gray.200"}
-      >
-        <PopoverHeader
-          fontWeight="semibold"
+      <Portal>
+        <PopoverContent
+          bgColor={darkMode ? "#333333" : "white"}
           borderColor={darkMode ? "#464647" : "gray.200"}
+          color={darkMode ? "#cbcaca" : "inherit"}
+          maxW="calc(100vw - 2rem)"
         >
-          Update Info
-        </PopoverHeader>
-        <PopoverArrow bgColor={darkMode ? "#333333" : "white"} />
-        <PopoverCloseButton />
-        <PopoverBody borderColor={darkMode ? "#464647" : "gray.200"}>
-          <Input
-            ref={inputRef}
-            mb={2}
-            value={info.name}
-            maxLength={25}
-            onChange={(event) => onChangeName?.(event.target.value)}
-          />
-          <Button
-            size="sm"
-            w="100%"
-            leftIcon={<FaPalette />}
-            colorScheme={darkMode ? "whiteAlpha" : "gray"}
-            onClick={onChangeColor}
+          <PopoverHeader
+            fontWeight="semibold"
+            borderColor={darkMode ? "#464647" : "gray.200"}
           >
-            Change Color
-          </Button>
-        </PopoverBody>
-        <PopoverFooter
-          d="flex"
-          justifyContent="flex-end"
-          borderColor={darkMode ? "#464647" : "gray.200"}
-        >
-          <ButtonGroup size="sm">
-            <Button colorScheme="blue" onClick={onClose}>
-              Done
+            Update Info
+          </PopoverHeader>
+          <PopoverArrow bgColor={darkMode ? "#333333" : "white"} />
+          <PopoverCloseButton />
+          <PopoverBody borderColor={darkMode ? "#464647" : "gray.200"}>
+            <Input
+              ref={inputRef}
+              mb={2}
+              value={info.name}
+              maxLength={25}
+              onChange={(event) => onChangeName?.(event.target.value)}
+            />
+            <Button
+              size="sm"
+              w="100%"
+              leftIcon={<FaPalette />}
+              colorScheme={darkMode ? "whiteAlpha" : "gray"}
+              onClick={onChangeColor}
+            >
+              Change Color
             </Button>
-          </ButtonGroup>
-        </PopoverFooter>
-      </PopoverContent>
+          </PopoverBody>
+          <PopoverFooter
+            d="flex"
+            justifyContent="flex-end"
+            borderColor={darkMode ? "#464647" : "gray.200"}
+          >
+            <ButtonGroup size="sm">
+              <Button colorScheme="blue" onClick={onClose}>
+                Done
+              </Button>
+            </ButtonGroup>
+          </PopoverFooter>
+        </PopoverContent>
+      </Portal>
     </Popover>
   );
 }
